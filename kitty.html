@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>白团子</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;
+    background:#fffafc;
+    display:flex;align-items:center;justify-content:center;
+    -webkit-tap-highlight-color:transparent;}
+  /* 背景：粉白条纹 + 淡粉网点 */
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  #bg .stripes{
+    fill:url(#stripePat);
+  }
+  #bg .dots{
+    fill:url(#dotPat);
+  }
+  svg#cat{position:relative;z-index:1;width:min(92vw,92vh);height:auto;display:block;cursor:pointer;
+    touch-action:manipulation;}
+  .eye,.mouth,.berry,.blush,.whisker,.bow{transition:all .28s ease;}
+  .eyeOpen,.eyeShut{transition:opacity .18s ease;}
+
+  /* 平时：睁眼 */
+  .eyeShut{opacity:0;}
+
+  /* 捏一下：换成闭眼 =╸⩊╺ */
+  .squint .eyeOpen{opacity:0;}
+  .squint .eyeShut{opacity:1;}
+  .squint .whisker{opacity:.35;}
+  .squint .blush{opacity:1;transform:scale(1.12);}
+  /* 草莓消失 */
+  .squint .berry{opacity:0;transform:scale(.4);}
+  /* 蝴蝶结抖一下 */
+  .squint .bow{transform:rotate(-6deg) scale(1.08);}
+  .squint #bg .dots{opacity:.7;}
+
+  /* 脸被捏扁一点点 */
+  #face{transition:transform .18s ease;}
+  .press #face{transform:scale(1.045,0.965);}
+
+  /* 爱心 */
+  .heart{
+    opacity:0;
+    transform-origin:center;
+    animation:pop 1.05s ease-out forwards;
+  }
+  @keyframes pop{
+    0%  {opacity:0; transform:translateY(0) scale(.2);}
+    18% {opacity:1; transform:translateY(-18px) scale(1.1);}
+    100%{opacity:0; transform:translateY(-120px) scale(.75);}
+  }
+</style>
+</head>
+<body>
+<svg id="cat" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="faceGrad" cx="42%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="78%" stop-color="#fffdfb"/>
+      <stop offset="100%" stop-color="#f4ece4"/>
+    </radialGradient>
+    <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f7b3b3" stop-opacity=".85"/>
+      <stop offset="100%" stop-color="#f7b3b3" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tongueGrad" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#fbc0c9"/>
+      <stop offset="100%" stop-color="#f2a0ad"/>
+    </radialGradient>
+    <radialGradient id="berryGrad" cx="40%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#ff9aa8"/>
+      <stop offset="100%" stop-color="#e8737f"/>
+    </radialGradient>
+    <!-- 粉白条纹 -->
+    <pattern id="stripePat" width="46" height="46" patternUnits="userSpaceOnUse"
+             patternTransform="rotate(-18)">
+      <rect width="46" height="46" fill="#fffafc"/>
+      <rect width="23" height="46" fill="#ffe4ec"/>
+    </pattern>
+    <!-- 淡粉网点 -->
+    <pattern id="dotPat" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="6.5" cy="6.5" r="3.1" fill="#f9c2d4" opacity=".55"/>
+      <circle cx="19.5" cy="19.5" r="2.4" fill="#f7b3c9" opacity=".45"/>
+    </pattern>
+  </defs>
+
+  <!-- 背景层 -->
+  <svg id="bg" preserveAspectRatio="none" viewBox="0 0 100 100">
+    <rect class="stripes" x="0" y="0" width="100" height="100"/>
+    <rect class="dots"    x="0" y="0" width="100" height="100"/>
+  </svg>
+
+  <!-- 耳朵：三花（左棕右黄） -->
+  <ellipse cx="82"  cy="122" rx="54" ry="48" fill="#c98a5c"/>
+  <ellipse cx="318" cy="122" rx="54" ry="48" fill="#fbe27a"/>
+  <ellipse cx="82"  cy="122" rx="54" ry="48" fill="#b0703f" opacity=".35"/>
+  <ellipse cx="318" cy="122" rx="54" ry="48" fill="#f7d95e" opacity=".35"/>
+
+  <!-- 脸：又肥又圆（横向更宽） -->
+  <g id="face">
+    <ellipse cx="200" cy="222" rx="188" ry="160" fill="url(#faceGrad)"/>
+    <ellipse cx="200" cy="222" rx="188" ry="160" fill="none"
+             stroke="#efe4d9" stroke-width="2"/>
+  </g>
+
+  <!-- 腮红 -->
+  <ellipse class="blush" cx="92"  cy="256" rx="34" ry="22" fill="url(#blushGrad)" opacity=".7"/>
+  <ellipse class="blush" cx="308" cy="256" rx="34" ry="22" fill="url(#blushGrad)" opacity=".7"/>
+
+  <!-- 胡须 -->
+  <g class="whisker" stroke="#c9b8a8" stroke-width="4" stroke-linecap="round">
+    <line x1="46"  y1="246" x2="80"  y2="246"/>
+    <line x1="44"  y1="272" x2="80"  y2="272"/>
+    <line x1="354" y1="246" x2="320" y2="246"/>
+    <line x1="356" y1="272" x2="320" y2="272"/>
+  </g>
+
+  <!-- 眼睛：睁眼 =⩌⩊⩌= 无高光，眯眼 =╸⩊╺ -->
+  <g class="eye" style="transform-origin:200px 208px">
+    <!-- 睁眼：圆点 -->
+    <g class="eyeOpen">
+      <ellipse cx="126" cy="208" rx="19" ry="21" fill="#5b4a44"/>
+      <ellipse cx="274" cy="208" rx="19" ry="21" fill="#5b4a44"/>
+    </g>
+    <!-- 闭眼：两道横线 -->
+    <g class="eyeShut" stroke="#5b4a44" stroke-width="7" stroke-linecap="round">
+      <line x1="106" y1="208" x2="146" y2="208"/>
+      <line x1="254" y1="208" x2="294" y2="208"/>
+    </g>
+  </g>
+
+  <!-- 嘴：猫猫嘴 w 形 -->
+  <path class="mouth" d="M172 246 q14 16 28 0 q14 16 28 0"
+        fill="none" stroke="#5b4a44" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 舌头已移除 -->
+
+  <!-- 草莓 -->
+  <g class="berry" style="transform-origin:200px 300px">
+    <path d="M200 276 c22 0 34 14 34 30 c0 20 -18 34 -34 34
+             c-16 0 -34 -14 -34 -34 c0 -16 12 -30 34 -30 z"
+          fill="url(#berryGrad)"/>
+    <g fill="#fff" opacity=".8">
+      <circle cx="188" cy="304" r="2.2"/>
+      <circle cx="200" cy="314" r="2.2"/>
+      <circle cx="212" cy="300" r="2.2"/>
+      <circle cx="200" cy="294" r="2.2"/>
+      <circle cx="190" cy="320" r="2.2"/>
+      <circle cx="212" cy="320" r="2.2"/>
+    </g>
+    <path d="M186 276 q14 -12 28 0 q-6 10 -14 10 q-8 0 -14 -10 z"
+          fill="#7cc47a"/>
+  </g>
+
+  <!-- 蝴蝶结 -->
+  <g class="bow" style="transform-origin:200px 96px">
+    <path d="M198 96 c-14 -20 -34 -26 -46 -18 c-12 8 -10 30 4 38
+             c12 7 30 0 42 -14 z" fill="#f27c8d"/>
+    <path d="M202 96 c14 -20 34 -26 46 -18 c12 8 10 30 -4 38
+             c-12 7 -30 0 -42 -14 z" fill="#f27c8d"/>
+    <path d="M198 96 c-14 -20 -34 -26 -46 -18 c-12 8 -10 30 4 38
+             c12 7 30 0 42 -14 z" fill="#e06475" opacity=".28"/>
+    <circle cx="200" cy="98" r="13" fill="#f9a3b0"/>
+    <circle cx="200" cy="98" r="13" fill="none" stroke="#e06475" stroke-width="2"/>
+  </g>
+
+  <!-- 左耳蝴蝶结：已移除 -->
+
+  <!-- 爱心层 -->
+  <g id="hearts"></g>
+</svg>
+
+<script>
+  var svg   = document.getElementById('cat');
+  var layer = document.getElementById('hearts');
+  var timer = null;
+  var pressTimer = null;
+
+  /* ---- 吱吱叫：Web Audio 合成，不用外部文件 ---- */
+  var ac = null;
+  function audio(){
+    if(!ac){
+      var C = window.AudioContext || window.webkitAudioContext;
+      if(!C) return null;
+      ac = new C();
+    }
+    if(ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+
+  function squeak(){
+    var a = audio();
+    if(!a) return;
+    var t = a.currentTime;
+
+    // 主音：短促上滑，像捏玩具
+    var osc = a.createOscillator();
+    var gain = a.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.exponentialRampToValueAtTime(1750, t + 0.07);
+    osc.frequency.exponentialRampToValueAtTime(1180, t + 0.16);
+
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.22, t + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+
+    osc.connect(gain); gain.connect(a.destination);
+    osc.start(t); osc.stop(t + 0.2);
+
+    // 泛音：让声音更"吱"
+    var osc2 = a.createOscillator();
+    var g2 = a.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1760, t);
+    osc2.frequency.exponentialRampToValueAtTime(2400, t + 0.12);
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(0.07, t + 0.01);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+    osc2.connect(g2); g2.connect(a.destination);
+    osc2.start(t); osc2.stop(t + 0.16);
+  }
+
+  /* ---- 爱心 ---- */
+  var HEART = 'M0 6 C0 2 4 -1 7 2 C10 -1 14 2 14 6 C14 11 7 15 7 15 C7 15 0 11 0 6 Z';
+
+  function heart(x, y, size, rot, delay){
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','heart');
+    g.setAttribute('transform',
+      'translate(' + x + ',' + y + ') rotate(' + rot + ') scale(' + size + ')');
+    g.style.animationDelay = delay + 'ms';
+
+    var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', HEART);
+    p.setAttribute('fill', '#f8748b');
+    p.setAttribute('transform','translate(-7,-7)');
+
+    g.appendChild(p);
+    layer.appendChild(g);
+    setTimeout(function(){ g.remove(); }, 1300 + delay);
+  }
+
+  function burst(){
+    var spots = [
+      [150, 250, 1.9, -14, 0],
+      [250, 250, 1.9,  14, 0],
+      [200, 236, 1.5,   0, 90],
+      [124, 300, 1.2, -22, 170],
+      [276, 300, 1.2,  22, 170]
+    ];
+    for(var i = 0; i < spots.length; i++){
+      heart(spots[i][0], spots[i][1], spots[i][2], spots[i][3], spots[i][4]);
+    }
+  }
+
+  /* ---- 捏 ---- */
+  function pinch(){
+    svg.classList.add('squint','press');
+    burst();
+    squeak();
+
+    clearTimeout(timer);
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(function(){ svg.classList.remove('press'); }, 160);
+    timer = setTimeout(function(){ svg.classList.remove('squint'); }, 950);
+  }
+
+  svg.addEventListener('pointerdown', pinch);
+  svg.addEventListener('keydown', function(e){
+    if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); pinch(); }
+  });
+  svg.setAttribute('tabindex','0');
+</script>
+</body>
+</html>

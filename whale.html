@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>鲸鱼捏捏乐</title>
+<style>
+html,body{margin:0;height:100%;background:#ffffff;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+svg{width:min(92vw,92vh);height:min(92vw,92vh);cursor:pointer;display:block;}
+#whale{transform-box:view-box;transform-origin:200px 300px;}
+.float{position:fixed;font-size:30px;pointer-events:none;z-index:9;transform:translate(-50%,-50%);}
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="bodyClip">
+<path d="M316 202 C332 152 280 114 198 114 C114 114 66 158 66 216 C66 272 124 308 206 308 C278 308 322 278 328 238 Z"/>
+</clipPath>
+</defs>
+<rect width="400" height="400" fill="#ffffff"/>
+<g fill="#A5CAF1" opacity="0.5">
+<circle cx="50" cy="60" r="10"/>
+<circle cx="150" cy="40" r="7"/>
+<circle cx="260" cy="70" r="9"/>
+<circle cx="350" cy="45" r="6"/>
+<circle cx="40" cy="160" r="7"/>
+<circle cx="360" cy="150" r="9"/>
+<circle cx="30" cy="260" r="9"/>
+<circle cx="370" cy="250" r="7"/>
+<circle cx="60" cy="350" r="8"/>
+<circle cx="170" cy="370" r="6"/>
+<circle cx="280" cy="360" r="9"/>
+<circle cx="360" cy="340" r="7"/>
+</g>
+<g id="whale">
+<path d="M312 214 C344 210 364 186 378 156 C388 188 386 214 370 232 C386 250 390 280 380 306 C356 280 338 250 312 242 Z"
+      fill="#7C93B4" stroke="#555555" stroke-width="11" stroke-linejoin="round"/>
+<ellipse cx="146" cy="304" rx="30" ry="20" transform="rotate(-18 146 304)"
+         fill="#7C93B4" stroke="#555555" stroke-width="10"/>
+<ellipse cx="258" cy="306" rx="28" ry="18" transform="rotate(14 258 306)"
+         fill="#7C93B4" stroke="#555555" stroke-width="10"/>
+<path d="M316 202 C332 152 280 114 198 114 C114 114 66 158 66 216 C66 272 124 308 206 308 C278 308 322 278 328 238 Z"
+      fill="#8FA6C4" stroke="#555555" stroke-width="11" stroke-linejoin="round"/>
+<g clip-path="url(#bodyClip)">
+<ellipse cx="188" cy="268" rx="74" ry="40" fill="#F7FAFF"/>
+</g>
+<g id="spout" stroke="#A5CAF1" stroke-width="10" stroke-linecap="round" fill="none">
+<path d="M150 116 C144 92 148 70 160 52"/>
+</g>
+<g id="spoutDrops" fill="#A5CAF1">
+<circle cx="176" cy="40" r="9"/>
+<circle cx="134" cy="34" r="6"/>
+<circle cx="196" cy="62" r="5"/>
+</g>
+<g id="eyes" fill="#4A342A">
+<ellipse cx="142" cy="192" rx="10" ry="8" transform="rotate(-14 142 192)"/>
+<ellipse cx="198" cy="192" rx="10" ry="8" transform="rotate(14 198 192)"/>
+</g>
+<g id="eyesClosed" style="display:none" stroke="#4A342A" stroke-width="7" fill="none" stroke-linecap="round">
+<path d="M133 190 L153 194"/>
+<path d="M187 194 L207 190"/>
+</g>
+<g fill="#E9B9C0">
+<ellipse cx="118" cy="214" rx="15" ry="9"/>
+<ellipse cx="222" cy="214" rx="15" ry="9"/>
+</g>
+</g>
+</svg>
+</div>
+<script>
+var svg=document.querySelector('svg');
+var whale=document.getElementById('whale');
+var eyes=document.getElementById('eyes');
+var eyesClosed=document.getElementById('eyesClosed');
+var raf=null,startT=0,DUR=460,AX=1.11,AY=0.87;
+var ac=null;
+function getAC(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(ac&&ac.state==='suspended'){ac.resume();}return ac;}
+function boop(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+function note(t0,base,dur){
+var o=c.createOscillator();var g=c.createGain();
+o.type='sine';
+o.frequency.setValueAtTime(base*2.1,t0);
+o.frequency.exponentialRampToValueAtTime(base*0.72,t0+0.13);
+g.gain.setValueAtTime(0.0001,t0);
+g.gain.exponentialRampToValueAtTime(0.38,t0+0.015);
+g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.02);
+}
+note(t,165,0.17);
+note(t+0.15,132,0.22);
+}
+function pop(){
+var d=document.createElement('div');d.className='float';d.textContent='🐳';
+var r=svg.getBoundingClientRect();
+var x=r.left+r.width*(0.3+Math.random()*0.4);
+var y=r.top+r.height*0.35;
+d.style.left=x+'px';d.style.top=y+'px';
+document.body.appendChild(d);
+var t0=0,dur=800;
+function step(ts){if(!t0)t0=ts;var k=(ts-t0)/dur;if(k>=1){d.remove();return;}
+d.style.top=(y-70*k)+'px';d.style.opacity=String(1-k*k);requestAnimationFrame(step);}
+requestAnimationFrame(step);
+}
+function tick(ts){
+if(!startT)startT=ts;
+var k=(ts-startT)/DUR;
+if(k>=1){whale.style.transform='';eyes.style.display='';eyesClosed.style.display='none';raf=null;return;}
+var p=Math.sin(Math.PI*k);
+var sx=1+(AX-1)*p;var sy=1-(1-AY)*p;
+whale.style.transform='scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+requestAnimationFrame(tick);
+}
+function squish(){
+getAC();
+if(raf){cancelAnimationFrame(raf);}
+startT=0;
+eyes.style.display='none';eyesClosed.style.display='';
+boop();pop();
+raf=requestAnimationFrame(tick);
+}
+svg.addEventListener('pointerdown',function(e){e.preventDefault();squish();});
+</script>
+</body>
+</html>

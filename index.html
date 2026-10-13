@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EAF6FD">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>捏捏乐 · 点一下</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>🫧</text></svg>">
+<style>
+  :root{
+    --ink:#3F4A55; --sub:#8FA0AE; --line:#E2EDF5;
+    --card:#FFFFFF; --accent:#7FC7E8;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{
+    min-height:100vh;padding:26px 16px 44px;
+    background:linear-gradient(180deg,#F5FBFF 0%,#EAF4FB 45%,#E2EFF9 100%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:620px;margin:0 auto;}
+  header{margin-bottom:18px;}
+  h1{font-size:23px;font-weight:600;letter-spacing:.08em;margin:0 0 8px;}
+  h1 .dot{color:var(--accent);}
+  .meta{color:var(--sub);font-size:12.5px;letter-spacing:.05em;line-height:1.9;}
+  .search{margin-top:16px;}
+  .search input{
+    width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;
+    padding:12px 15px;font-size:15px;color:var(--ink);outline:none;font-family:inherit;
+    box-shadow:0 2px 10px rgba(127,199,232,.08);
+  }
+  .search input:focus{border-color:var(--accent);}
+  .search input::placeholder{color:#B8C7D2;}
+  .grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px;
+  }
+  @media(min-width:560px){.grid{grid-template-columns:repeat(3,1fr);}}
+  a.card{
+    display:flex;flex-direction:column;justify-content:space-between;
+    min-height:106px;padding:14px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);
+    text-decoration:none;color:inherit;
+    box-shadow:0 2px 10px rgba(127,199,232,.10);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  a.card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(127,199,232,.18);}
+  a.card .emo{font-size:26px;line-height:1;}
+  a.card .t{font-size:15px;font-weight:600;letter-spacing:.02em;margin-top:10px;}
+  a.card .s{font-size:11px;color:var(--sub);letter-spacing:.04em;margin-top:4px;}
+  .empty{display:none;color:var(--sub);font-size:14px;padding:22px 0;}
+  footer{
+    margin-top:30px;padding-top:18px;border-top:1px solid var(--line);
+    color:var(--sub);font-size:11.5px;line-height:2;letter-spacing:.03em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>捏捏乐<span class="dot">.</span></h1>
+    <div class="meta">17 只 · 点一下，它会弹一下<br>手机可以「添加到主屏幕」，跟 App 一样开</div>
+    <div class="search">
+      <input id="q" type="text" placeholder="搜一下… 虎鲸 / 兔子 / 猫" autocomplete="off">
+    </div>
+  </header>
+
+  <div class="grid" id="grid">
+    <a class="card" href="orca.html">
+      <div class="emo">🐳</div>
+      <div><div class="t">虎鲸捏捏乐</div><div class="s">海洋世界 · 爱心 · 哨音</div></div>
+    </a>
+    <a class="card" href="whale.html">
+      <div class="emo">🐋</div>
+      <div><div class="t">鲸鱼捏捏乐</div><div class="s">喷水 · 浅灰蓝</div></div>
+    </a>
+    <a class="card" href="seal.html">
+      <div class="emo">🦭</div>
+      <div><div class="t">小海豹捏捏乐</div><div class="s">duang</div></div>
+    </a>
+    <a class="card" href="octopus.html">
+      <div class="emo">🐙</div>
+      <div><div class="t">章鱼捏捏乐</div><div class="s">喷墨 · 变色</div></div>
+    </a>
+    <a class="card" href="penguin8.html">
+      <div class="emo">🐧</div>
+      <div><div class="t">企鹅捏捏乐</div><div class="s">全身弹</div></div>
+    </a>
+    <a class="card" href="loprabbit.html">
+      <div class="emo">🐰</div>
+      <div><div class="t">垂耳兔捏捏乐</div><div class="s">耳朵会晃</div></div>
+    </a>
+    <a class="card" href="cornerbunny.html">
+      <div class="emo">🐇</div>
+      <div><div class="t">角落白兔捏捏乐</div><div class="s">摸肚皮</div></div>
+    </a>
+    <a class="card" href="blackrabbit.html">
+      <div class="emo">🐈‍⬛</div>
+      <div><div class="t">小黑猫捏捏乐</div><div class="s">白眼睛</div></div>
+    </a>
+    <a class="card" href="creamcat.html">
+      <div class="emo">🐱</div>
+      <div><div class="t">奶油猫捏捏乐</div><div class="s">唧唧</div></div>
+    </a>
+    <a class="card" href="kitty.html">
+      <div class="emo">☁️</div>
+      <div><div class="t">白团子</div><div class="s">软</div></div>
+    </a>
+    <a class="card" href="hamster.html">
+      <div class="emo">🐹</div>
+      <div><div class="t">仓鼠捏捏乐</div><div class="s">鼓鼓的</div></div>
+    </a>
+    <a class="card" href="panda.html">
+      <div class="emo">🐼</div>
+      <div><div class="t">熊猫捏捏乐</div><div class="s">黑眼圈</div></div>
+    </a>
+    <a class="card" href="dog.html">
+      <div class="emo">🐶</div>
+      <div><div class="t">捏捏小狗</div><div class="s">垂耳</div></div>
+    </a>
+    <a class="card" href="frog.html">
+      <div class="emo">🐸</div>
+      <div><div class="t">青蛙捏捏乐</div><div class="s">咕</div></div>
+    </a>
+    <a class="card" href="pig-game.html">
+      <div class="emo">🐷</div>
+      <div><div class="t">小猪捏捏乐</div><div class="s">粉</div></div>
+    </a>
+    <a class="card" href="whitemint.html">
+      <div class="emo">🍃</div>
+      <div><div class="t">薄荷奶绿</div><div class="s">凉凉的</div></div>
+    </a>
+    <a class="card" href="shenshuwan.html">
+      <div class="emo">🌙</div>
+      <div><div class="t">沈舒晚</div><div class="s">我自己</div></div>
+    </a>
+  </div>
+
+  <div class="empty" id="empty">没有找到。🙁</div>
+
+  <footer>
+    每一只都是一个单独的 HTML 文件，没有外部依赖，离线也能开。<br>
+    手指按住（电脑是点一下）就会扁一下，还会叫一声。
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var q = document.getElementById('q');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('a.card'));
+  var empty = document.getElementById('empty');
+  q.addEventListener('input', function(){
+    var k = q.value.trim().toLowerCase();
+    var hit = 0;
+    cards.forEach(function(c){
+      var ok = k === '' || c.textContent.toLowerCase().indexOf(k) >= 0;
+      c.style.display = ok ? '' : 'none';
+      if (ok) hit++;
+    });
+    empty.style.display = hit ? 'none' : 'block';
+  });
+})();
+</script>
+</body>
+</html>

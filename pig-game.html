@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>小猪捏捏乐</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#FFF7F4;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+  body{display:flex;align-items:center;justify-content:center;}
+  #pigwrap{position:relative;width:min(66vw,300px);transform-origin:50% 100%;
+           will-change:transform;user-select:none;cursor:pointer;}
+  #pigwrap svg{width:100%;height:auto;display:block;overflow:visible;}
+  .heart{position:fixed;font-size:24px;pointer-events:none;z-index:5;
+         animation:float 1.15s ease-out forwards;}
+  @keyframes float{
+    0%{opacity:0;transform:translate(0,0) scale(.4)}
+    20%{opacity:1}
+    100%{opacity:0;transform:translate(var(--dx),-130px) scale(1.1)}
+  }
+</style>
+</head>
+<body>
+<div id="pigwrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="150 150 900 760" width="900" height="760">
+<defs>
+  <radialGradient id="blush" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#FFBAC1" stop-opacity="0.85"/>
+    <stop offset="60%" stop-color="#FFBAC1" stop-opacity="0.45"/>
+    <stop offset="100%" stop-color="#FFBAC1" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FFFDF8"/>
+    <stop offset="100%" stop-color="#FDF0DC"/>
+  </linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="3"/></filter>
+</defs>
+
+<!-- 底部阴影 -->
+<ellipse cx="600" cy="800" rx="330" ry="60" fill="#FADBDA" opacity="0.55" filter="url(#soft)"/>
+
+<!-- 耳朵 -->
+<path d="M300 430 C 250 300 300 210 400 200 C 470 194 500 260 500 340 Z" fill="#FADBDA" stroke="#7A3B33" stroke-width="16" stroke-linejoin="round"/>
+<path d="M900 430 C 950 300 900 210 800 200 C 730 194 700 260 700 340 Z" fill="#FADBDA" stroke="#7A3B33" stroke-width="16" stroke-linejoin="round"/>
+<path d="M330 400 C 300 320 330 260 400 252 C 440 248 460 290 460 350 Z" fill="#F7CFCF" opacity="0.9"/>
+<path d="M870 400 C 900 320 870 260 800 252 C 760 248 740 290 740 350 Z" fill="#F7CFCF" opacity="0.9"/>
+
+<!-- 头 -->
+<path d="M600 210
+  C 830 210 960 360 960 560
+  C 960 740 800 830 600 830
+  C 400 830 240 740 240 560
+  C 240 360 370 210 600 210 Z"
+  fill="url(#body)" stroke="#7A3B33" stroke-width="16" stroke-linejoin="round"/>
+
+<!-- 腮红 -->
+<ellipse cx="390" cy="600" rx="90" ry="62" fill="url(#blush)"/>
+<ellipse cx="810" cy="600" rx="90" ry="62" fill="url(#blush)"/>
+<path d="M360 592 v18 M382 588 v18" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+<path d="M780 592 v18 M802 588 v18" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+
+<!-- 眼睛：平常的圆豆豆眼 -->
+<g id="eyesNormal">
+  <ellipse cx="415" cy="520" rx="26" ry="30" fill="#7A3B33"/>
+  <ellipse cx="785" cy="520" rx="26" ry="30" fill="#7A3B33"/>
+  <circle cx="424" cy="508" r="9" fill="#FFFFFF"/>
+  <circle cx="794" cy="508" r="9" fill="#FFFFFF"/>
+</g>
+
+<!-- 眼睛：被捏时的 ／ ＼ -->
+<g id="eyesSquint" style="display:none">
+  <path d="M368 496 C 392 520 418 536 446 546" fill="none" stroke="#7A3B33" stroke-width="22" stroke-linecap="round"/>
+  <path d="M832 496 C 808 520 782 536 754 546" fill="none" stroke="#7A3B33" stroke-width="22" stroke-linecap="round"/>
+</g>
+
+<!-- 鼻子 -->
+<ellipse cx="600" cy="590" rx="72" ry="56" fill="#F7CFCF" stroke="#D9737C" stroke-width="12"/>
+<ellipse cx="578" cy="590" rx="10" ry="20" fill="#D9737C"/>
+<ellipse cx="622" cy="590" rx="10" ry="20" fill="#D9737C"/>
+</svg>
+</div>
+<script>
+/* ---------- 音效 ---------- */
+let AC=null;
+const ac=()=>{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended') AC.resume(); return AC; };
+
+function boing(){
+  const c=ac(), t=c.currentTime;
+  const o=c.createOscillator(), g=c.createGain(), lfo=c.createOscillator(), lg=c.createGain();
+  o.type='triangle';
+  o.frequency.setValueAtTime(760,t);
+  o.frequency.exponentialRampToValueAtTime(180,t+0.55);
+  lfo.frequency.setValueAtTime(22,t);
+  lfo.frequency.linearRampToValueAtTime(9,t+0.5);
+  lg.gain.setValueAtTime(70,t);
+  lfo.connect(lg).connect(o.frequency);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.35,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.6);
+  o.connect(g).connect(c.destination);
+  o.start(t); lfo.start(t); o.stop(t+0.65); lfo.stop(t+0.65);
+}
+
+function oink(){
+  const c=ac();
+  [0,0.22].forEach((d,i)=>{
+    const t=c.currentTime+d;
+    const o=c.createOscillator(), g=c.createGain(), f=c.createBiquadFilter();
+    o.type='sawtooth';
+    const base=i?300:250;
+    o.frequency.setValueAtTime(base,t);
+    o.frequency.linearRampToValueAtTime(base*1.5,t+0.09);
+    o.frequency.linearRampToValueAtTime(base*0.8,t+0.19);
+    f.type='lowpass'; f.frequency.setValueAtTime(1100,t); f.Q.setValueAtTime(6,t);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.22,t+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+    o.connect(f).connect(g).connect(c.destination);
+    o.start(t); o.stop(t+0.22);
+  });
+}
+
+/* ---------- 交互 ---------- */
+const wrap=document.getElementById('pigwrap');
+const eyesN=wrap.querySelector('#eyesNormal');
+const eyesS=wrap.querySelector('#eyesSquint');
+let busy=false;
+
+wrap.addEventListener('pointerdown',squish);
+
+function squish(e){
+  e.preventDefault();
+  if(busy) return;
+  busy=true;
+  ac();
+
+  /* 眼睛变 ／ ＼ */
+  eyesN.style.display='none';
+  eyesS.style.display='';
+  setTimeout(()=>{
+    eyesN.style.display='';
+    eyesS.style.display='none';
+  },430);
+
+  /* 身体弹簧回弹 */
+  const frames=[
+    [0,  'scale(1.16,0.78) translateY(12px)'],
+    [70, 'scale(0.88,1.24) translateY(-38px)'],
+    [150,'scale(1.07,0.93) translateY(8px)'],
+    [230,'scale(0.95,1.08) translateY(-18px)'],
+    [310,'scale(1.02,0.98) translateY(3px)'],
+    [390,'scale(0.99,1.02) translateY(-7px)'],
+    [470,'scale(1,1) translateY(0)']
+  ];
+  frames.forEach(([t,s])=>setTimeout(()=>{
+    wrap.style.transition='transform 90ms cubic-bezier(.34,1.56,.64,1)';
+    wrap.style.transform=s;
+  },t));
+
+  boing();
+  oink();
+  hearts();
+  setTimeout(()=>busy=false,520);
+}
+
+function hearts(){
+  const n=3+Math.floor(Math.random()*3);
+  const r=wrap.getBoundingClientRect();
+  for(let i=0;i<n;i++){
+    const s=document.createElement('div');
+    s.className='heart';
+    s.textContent=Math.random()<0.5?'💗':'💕';
+    s.style.left=(r.left+r.width/2+(Math.random()*100-50))+'px';
+    s.style.top=(r.top+r.height*0.25)+'px';
+    s.style.setProperty('--dx',(Math.random()*80-40)+'px');
+    s.style.animationDelay=(i*70)+'ms';
+    s.style.fontSize=(18+Math.random()*14)+'px';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1500+i*70);
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>奶油猫捏捏乐</title>
+<style>
+html,body{margin:0;height:100%;background:#FFF6D8;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+body::before{content:'';position:fixed;inset:0;
+background:radial-gradient(circle at 20% 20%, #FFFDF2 0 42px, transparent 43px),
+radial-gradient(circle at 70% 12%, #FFFDF2 0 34px, transparent 35px),
+radial-gradient(circle at 88% 40%, #FFFDF2 0 40px, transparent 41px),
+radial-gradient(circle at 12% 60%, #FFFDF2 0 36px, transparent 37px),
+radial-gradient(circle at 55% 78%, #FFFDF2 0 44px, transparent 45px),
+radial-gradient(circle at 85% 90%, #FFFDF2 0 32px, transparent 33px),
+radial-gradient(circle at 35% 40%, #FFFDF2 0 30px, transparent 31px);
+filter:blur(1.5px);opacity:0.85;pointer-events:none;}
+svg{width:min(92vw,92vh);height:min(92vw,92vh);cursor:pointer;display:block;position:relative;z-index:2;}
+#cat{transform-box:view-box;transform-origin:200px 345px;}
+.float{position:fixed;z-index:9;pointer-events:none;transform:translate(-50%,-50%);
+background:rgba(255,255,255,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+border:1.5px solid rgba(90,70,50,0.18);border-radius:14px;padding:4px 10px;
+font-size:15px;color:#5A4632;white-space:nowrap;box-shadow:0 2px 8px rgba(90,70,50,0.12);}
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="bodyClip">
+<path d="M120 110 C 112 70 140 56 158 84
+ C 176 78 224 78 242 84 C 260 56 288 70 280 110
+ C 304 140 322 190 322 242 C 322 308 268 348 200 348
+ C 132 348 78 308 78 242 C 78 190 96 140 120 110 Z"/>
+</clipPath>
+</defs>
+<g id="cat">
+<path d="M120 110 C 112 70 140 56 158 84
+ C 176 78 224 78 242 84 C 260 56 288 70 280 110
+ C 304 140 322 190 322 242 C 322 308 268 348 200 348
+ C 132 348 78 308 78 242 C 78 190 96 140 120 110 Z"
+ fill="#FDF6DC"/>
+<g clip-path="url(#bodyClip)">
+<circle cx="140" cy="92" r="26" fill="#FFEA9F"/>
+</g>
+<path d="M120 110 C 112 70 140 56 158 84
+ C 176 78 224 78 242 84 C 260 56 288 70 280 110
+ C 304 140 322 190 322 242 C 322 308 268 348 200 348
+ C 132 348 78 308 78 242 C 78 190 96 140 120 110 Z"
+ fill="none" stroke="#5A4632" stroke-width="9" stroke-linejoin="round"/>
+<g id="eyes">
+<circle cx="156" cy="149" r="5.5" fill="#4A342A"/>
+<circle cx="244" cy="149" r="5.5" fill="#4A342A"/>
+</g>
+<g id="eyesLine" style="display:none" stroke="#4A342A" stroke-width="5" stroke-linecap="round" fill="none">
+<path d="M148 149 L164 149"/>
+<path d="M236 149 L252 149"/>
+</g>
+<g stroke="#4A342A" stroke-width="4" stroke-linecap="round" fill="none">
+<path d="M120 172 L142 180"/>
+<path d="M120 198 L142 190"/>
+<path d="M258 180 L280 172"/>
+<path d="M258 190 L280 198"/>
+</g>
+<ellipse cx="200" cy="175" rx="20" ry="15.5" fill="#ffffff" stroke="#5A4632" stroke-width="5.5"/>
+<path d="M191 165 C 196 160 204 160 209 165 C 204 171 196 171 191 165 Z" fill="#5A4632"/>
+<g stroke="#5A4632" stroke-width="6" stroke-linecap="round" fill="none">
+<path d="M186 244 C 196 252 196 268 184 272"/>
+<path d="M214 244 C 204 252 204 268 216 272"/>
+</g>
+<g stroke="#5A4632" stroke-width="5" stroke-linecap="round" fill="none">
+<path d="M176 306 C 186 316 184 334 170 336"/>
+<path d="M224 306 C 214 316 216 334 230 336"/>
+</g>
+</g>
+</svg>
+</div>
+<script>
+var svg=document.querySelector('svg');
+var cat=document.getElementById('cat');
+var eyes=document.getElementById('eyes');
+var eyesLine=document.getElementById('eyesLine');
+var raf=null,startT=0,DUR=460,AX=1.11,AY=0.87;
+var msgs=['喵~','喵呜','喵喵','咕噜噜','喵？'];
+var ac=null;
+function getAC(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(ac&&ac.state==='suspended'){ac.resume();}return ac;}
+function chirp(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+function peep(t0,base){
+var o=c.createOscillator();var g=c.createGain();
+o.type='triangle';
+o.frequency.setValueAtTime(base,t0);
+o.frequency.exponentialRampToValueAtTime(base*1.8,t0+0.05);
+o.frequency.exponentialRampToValueAtTime(base*0.9,t0+0.11);
+g.gain.setValueAtTime(0.0001,t0);
+g.gain.exponentialRampToValueAtTime(0.3,t0+0.01);
+g.gain.exponentialRampToValueAtTime(0.0001,t0+0.13);
+o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+0.15);
+}
+peep(t,900);
+peep(t+0.1,750);
+}
+function pop(){
+var d=document.createElement('div');d.className='float';
+d.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+var r=svg.getBoundingClientRect();
+var x=r.left+r.width*(0.3+Math.random()*0.4);
+var y=r.top+r.height*0.35;
+d.style.left=x+'px';d.style.top=y+'px';
+document.body.appendChild(d);
+var t0=0,dur=900;
+function step(ts){if(!t0)t0=ts;var k=(ts-t0)/dur;if(k>=1){d.remove();return;}
+d.style.top=(y-60*k)+'px';d.style.opacity=String(1-k*k);requestAnimationFrame(step);}
+requestAnimationFrame(step);
+}
+function tick(ts){
+if(!startT)startT=ts;
+var k=(ts-startT)/DUR;
+if(k>=1){cat.style.transform='';eyes.style.display='';eyesLine.style.display='none';raf=null;return;}
+var p=Math.sin(Math.PI*k);
+var sx=1+(AX-1)*p;var sy=1-(1-AY)*p;
+cat.style.transform='scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+requestAnimationFrame(tick);
+}
+function squish(){
+getAC();
+if(raf){cancelAnimationFrame(raf);}
+startT=0;
+eyes.style.display='none';eyesLine.style.display='';
+chirp();pop();
+raf=requestAnimationFrame(tick);
+}
+svg.addEventListener('pointerdown',function(e){e.preventDefault();squish();});
+</script>
+</body>
+</html>
