@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>小黑猫捏捏乐</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#fdf7f2;
+    display:flex;align-items:center;justify-content:center;
+    -webkit-tap-highlight-color:transparent;}
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  svg#cat{position:relative;z-index:1;width:min(92vw,92vh);height:auto;display:block;
+    cursor:pointer;touch-action:manipulation;}
+  .eyeOpen,.eyeShut,.mouthNormal,.mouthPinch{transition:opacity .14s ease;}
+  .eyeShut,.mouthPinch{opacity:0;}
+  #face{transition:transform .5s cubic-bezier(.34,1.6,.5,1);}
+  .squint .eyeOpen{opacity:0;}
+  .squint .eyeShut{opacity:1;}
+  .squint .mouthNormal{opacity:0;}
+  .squint .mouthPinch{opacity:1;}
+  .press #face{transform:scale(1.08,0.92);
+    transition:transform .12s ease-out;}
+  .heart{opacity:0;transform-origin:center;
+    animation:pop 1.05s ease-out forwards;}
+  @keyframes pop{
+    0%  {opacity:0; transform:translateY(0) scale(.2);}
+    18% {opacity:1; transform:translateY(-18px) scale(1.1);}
+    100%{opacity:0; transform:translateY(-120px) scale(.75);}
+  }
+</style>
+</head>
+<body>
+<svg id="cat" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="faceGrad" cx="42%" cy="30%" r="76%">
+      <stop offset="0%" stop-color="#4a4340"/>
+      <stop offset="72%" stop-color="#332d2b"/>
+      <stop offset="100%" stop-color="#241f1e"/>
+    </radialGradient>
+    <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f2808f" stop-opacity=".8"/>
+      <stop offset="100%" stop-color="#f2808f" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="stripePat" width="46" height="46" patternUnits="userSpaceOnUse"
+             patternTransform="rotate(-18)">
+      <rect width="46" height="46" fill="#fdf7f2"/>
+      <rect width="23" height="46" fill="#f6e9e0"/>
+    </pattern>
+    <pattern id="dotPat" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="6.5" cy="6.5" r="3.1" fill="#e8b9a8" opacity=".45"/>
+      <circle cx="19.5" cy="19.5" r="2.4" fill="#dfa892" opacity=".35"/>
+    </pattern>
+  </defs>
+
+  <svg id="bg" preserveAspectRatio="none" viewBox="0 0 100 100">
+    <rect x="0" y="0" width="100" height="100" fill="url(#stripePat)"/>
+    <rect x="0" y="0" width="100" height="100" fill="url(#dotPat)"/>
+  </svg>
+
+  <!-- 耳朵：短圆，贴着脑袋 -->
+  <g id="ears" fill="#241f1e">
+    <path class="ear earL"
+          d="M96 150 C80 108 86 78 108 76 C132 74 152 108 158 144 Z"
+          style="transform-origin:126px 148px"/>
+    <path class="ear earR"
+          d="M304 150 C320 108 314 78 292 76 C268 74 248 108 242 144 Z"
+          style="transform-origin:274px 148px"/>
+    <path d="M108 144 C98 112 102 92 114 90 C128 88 140 112 144 140 Z"
+          fill="#5c4a4a" opacity=".5"/>
+    <path d="M292 144 C302 112 298 92 286 90 C272 88 260 112 256 140 Z"
+          fill="#5c4a4a" opacity=".5"/>
+  </g>
+
+  <!-- 脸：宽、短、圆 -->
+  <g id="face" style="transform-origin:200px 250px">
+    <ellipse cx="200" cy="250" rx="198" ry="132" fill="url(#faceGrad)"/>
+    <ellipse cx="200" cy="250" rx="198" ry="132" fill="none"
+             stroke="#1c1817" stroke-width="2"/>
+  </g>
+
+  <!-- 眼睛：=⩌= 上下带短横的白豆豆 -->
+  <g class="eye">
+    <g class="eyeOpen" fill="#fff">
+      <ellipse cx="78" cy="222" rx="16" ry="18"/>
+      <ellipse cx="322" cy="222" rx="16" ry="18"/>
+    </g>
+    <g class="eyeOpen" stroke="#fff" stroke-width="6" stroke-linecap="round">
+      <line x1="66" y1="200" x2="90" y2="200"/>
+      <line x1="310" y1="200" x2="334" y2="200"/>
+    </g>
+    <g class="eyeShut" stroke="#fff" stroke-width="9" stroke-linecap="round">
+      <line x1="62" y1="222" x2="94" y2="222"/>
+      <line x1="306" y1="222" x2="338" y2="222"/>
+    </g>
+  </g>
+
+  <!-- 嘴：靠近眼睛，无鼻子 -->
+  <g class="mouth">
+    <path class="mouthNormal" d="M176 256 q12 13 24 0 q12 13 24 0"
+          fill="none" stroke="#fff" stroke-width="6"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="mouthPinch" d="M176 254 L200 278 L224 254"
+          fill="none" stroke="#fff" stroke-width="6"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 腮红：靠近眼睛 -->
+  <ellipse cx="70"  cy="266" rx="46" ry="29" fill="url(#blushGrad)" opacity=".85"/>
+  <ellipse cx="330" cy="266" rx="46" ry="29" fill="url(#blushGrad)" opacity=".85"/>
+
+  <!-- 前爪 -->
+  <ellipse cx="96"  cy="356" rx="44" ry="33" fill="#241f1e"/>
+  <ellipse cx="304" cy="356" rx="44" ry="33" fill="#241f1e"/>
+
+  <g id="hearts"></g>
+</svg>
+
+<script>
+  var svg    = document.getElementById('cat');
+  var layer  = document.getElementById('hearts');
+  var timer  = null;
+  var pressT = null;
+
+  var ac = null;
+  function audio(){
+    if(!ac){
+      var C = window.AudioContext || window.webkitAudioContext;
+      if(!C) return null;
+      ac = new C();
+    }
+    if(ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+
+  function squeak(){
+    var a = audio();
+    if(!a) return;
+    var t = a.currentTime;
+
+    var osc = a.createOscillator();
+    var gain = a.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(820, t);
+    osc.frequency.exponentialRampToValueAtTime(1680, t + 0.07);
+    osc.frequency.exponentialRampToValueAtTime(1120, t + 0.16);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.22, t + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    osc.connect(gain); gain.connect(a.destination);
+    osc.start(t); osc.stop(t + 0.2);
+
+    var osc2 = a.createOscillator();
+    var g2 = a.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1660, t);
+    osc2.frequency.exponentialRampToValueAtTime(2320, t + 0.12);
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(0.07, t + 0.01);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+    osc2.connect(g2); g2.connect(a.destination);
+    osc2.start(t); osc2.stop(t + 0.16);
+  }
+
+  var HEART = 'M0 6 C0 2 4 -1 7 2 C10 -1 14 2 14 6 C14 11 7 15 7 15 C7 15 0 11 0 6 Z';
+
+  function heart(x, y, size, rot, delay){
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','heart');
+    g.setAttribute('transform',
+      'translate(' + x + ',' + y + ') rotate(' + rot + ') scale(' + size + ')');
+    g.style.animationDelay = delay + 'ms';
+    var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', HEART);
+    p.setAttribute('fill', '#f8748b');
+    p.setAttribute('transform','translate(-7,-7)');
+    g.appendChild(p);
+    layer.appendChild(g);
+    setTimeout(function(){ g.remove(); }, 1300 + delay);
+  }
+
+  function burst(){
+    var spots = [
+      [104, 268, 1.9, -14, 0],
+      [296, 268, 1.9,  14, 0],
+      [200, 258, 1.5,   0, 90],
+      [96,  328, 1.2, -22, 170],
+      [304, 328, 1.2,  22, 170]
+    ];
+    for(var i = 0; i < spots.length; i++){
+      heart(spots[i][0], spots[i][1], spots[i][2], spots[i][3], spots[i][4]);
+    }
+  }
+
+  function pinch(){
+    svg.classList.add('squint','press');
+    burst();
+    squeak();
+    clearTimeout(timer);
+    clearTimeout(pressT);
+    pressT = setTimeout(function(){ svg.classList.remove('press'); }, 170);
+    timer  = setTimeout(function(){ svg.classList.remove('squint'); }, 950);
+  }
+
+  svg.addEventListener('pointerdown', pinch);
+  svg.setAttribute('tabindex','0');
+  svg.addEventListener('keydown', function(e){
+    if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); pinch(); }
+  });
+</script>
+</body>
+</html>

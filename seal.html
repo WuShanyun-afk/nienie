@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>海豹捏捏乐</title>
+<style>
+html,body{margin:0;height:100%;background:#ffffff;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+svg{width:min(92vw,92vh);height:min(92vw,92vh);cursor:pointer;display:block;}
+#seal{transform-box:view-box;transform-origin:200px 300px;}
+.float{position:fixed;font-size:30px;pointer-events:none;z-index:9;transform:translate(-50%,-50%);}
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern id="bg" width="60" height="60" patternUnits="userSpaceOnUse">
+<rect width="60" height="60" fill="#F5F1EA"/>
+<rect width="12" height="60" x="0" y="0" fill="#ffffff" opacity="0.55"/>
+<rect width="12" height="60" x="30" y="0" fill="#ffffff" opacity="0.55"/>
+<circle cx="21" cy="15" r="4" fill="#A5CAF1"/>
+<circle cx="51" cy="45" r="4" fill="#A5CAF1"/>
+</pattern>
+</defs>
+<rect width="400" height="400" fill="#ffffff"/>
+<g fill="#A5CAF1" opacity="0.5">
+<circle cx="50" cy="60" r="10"/>
+<circle cx="150" cy="40" r="7"/>
+<circle cx="260" cy="70" r="9"/>
+<circle cx="350" cy="45" r="6"/>
+<circle cx="40" cy="160" r="7"/>
+<circle cx="360" cy="150" r="9"/>
+<circle cx="30" cy="260" r="9"/>
+<circle cx="370" cy="250" r="7"/>
+<circle cx="60" cy="350" r="8"/>
+<circle cx="170" cy="370" r="6"/>
+<circle cx="280" cy="360" r="9"/>
+<circle cx="360" cy="340" r="7"/>
+</g>
+<g id="seal">
+<g stroke="#555555" stroke-width="11" fill="#F5F1EA" stroke-linejoin="round" stroke-linecap="round">
+<path d="M200 70
+ C 268 70 312 120 312 190
+ C 312 240 290 278 250 292
+ C 232 298 216 300 200 300
+ C 184 300 168 298 150 292
+ C 110 278 88 240 88 190
+ C 88 120 132 70 200 70 Z"/>
+<path d="M88 190 C 76 206 72 226 78 242 C 84 256 100 258 106 244 C 112 230 108 210 104 196"/>
+<path d="M312 190 C 324 206 328 226 322 242 C 316 256 300 258 294 244 C 288 230 292 210 296 196"/>
+</g>
+<g fill="#D7C9BB" opacity="0.85">
+<ellipse cx="130" cy="178" rx="17" ry="13" transform="rotate(-20 130 178)"/>
+<ellipse cx="270" cy="178" rx="17" ry="13" transform="rotate(20 270 178)"/>
+</g>
+<g id="eyes">
+<g fill="#4A342A">
+<ellipse cx="148" cy="160" rx="9" ry="7" transform="rotate(-20 148 160)"/>
+<ellipse cx="252" cy="160" rx="9" ry="7" transform="rotate(20 252 160)"/>
+</g>
+</g>
+<g id="eyesClosed" style="display:none" stroke="#4A342A" stroke-width="6" fill="none" stroke-linecap="round">
+<path d="M139 158 L158 156"/>
+<path d="M242 156 L261 158"/>
+</g>
+<g fill="#4A342A">
+<ellipse cx="200" cy="178" rx="9" ry="7"/>
+</g>
+<g fill="#BDBBBF">
+<circle cx="192" cy="194" r="12"/>
+<circle cx="208" cy="194" r="12"/>
+</g>
+<g fill="#D7C9BB">
+<ellipse cx="158" cy="136" rx="7" ry="5"/>
+<ellipse cx="242" cy="136" rx="7" ry="5"/>
+</g>
+</g>
+</svg>
+</div>
+<script>
+var svg=document.querySelector('svg');
+var seal=document.getElementById('seal');
+var eyes=document.getElementById('eyes');
+var eyesClosed=document.getElementById('eyesClosed');
+var raf=null,startT=0,DUR=460,AX=1.11,AY=0.87;
+var ac=null;
+function getAC(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(ac&&ac.state==='suspended'){ac.resume();}return ac;}
+function duang(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+function boing(t0,base){
+var o=c.createOscillator();var g=c.createGain();
+o.type='sine';
+o.frequency.setValueAtTime(base*2.2,t0);
+o.frequency.exponentialRampToValueAtTime(base*0.7,t0+0.12);
+g.gain.setValueAtTime(0.0001,t0);
+g.gain.exponentialRampToValueAtTime(0.4,t0+0.015);
+g.gain.exponentialRampToValueAtTime(0.0001,t0+0.16);
+o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+0.18);
+}
+boing(t,220);
+boing(t+0.14,180);
+}
+function pop(){
+var d=document.createElement('div');d.className='float';d.textContent='🦭';
+var r=svg.getBoundingClientRect();
+var x=r.left+r.width*(0.3+Math.random()*0.4);
+var y=r.top+r.height*0.35;
+d.style.left=x+'px';d.style.top=y+'px';
+document.body.appendChild(d);
+var t0=0,dur=800;
+function step(ts){if(!t0)t0=ts;var k=(ts-t0)/dur;if(k>=1){d.remove();return;}
+d.style.top=(y-70*k)+'px';d.style.opacity=String(1-k*k);requestAnimationFrame(step);}
+requestAnimationFrame(step);
+}
+function tick(ts){
+if(!startT)startT=ts;
+var k=(ts-startT)/DUR;
+if(k>=1){seal.style.transform='';eyes.style.display='';eyesClosed.style.display='none';raf=null;return;}
+var p=Math.sin(Math.PI*k);
+var sx=1+(AX-1)*p;var sy=1-(1-AY)*p;
+seal.style.transform='scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+requestAnimationFrame(tick);
+}
+function squish(){
+getAC();
+if(raf){cancelAnimationFrame(raf);}
+startT=0;
+eyes.style.display='none';eyesClosed.style.display='';
+duang();pop();
+raf=requestAnimationFrame(tick);
+}
+svg.addEventListener('pointerdown',function(e){e.preventDefault();squish();});
+</script>
+</body>
+</html>

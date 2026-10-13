@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>捏捏小狗</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+  body{
+    background-color:#FAF3EA;
+    background-image:radial-gradient(circle, rgba(190,166,143,.55) 2.2px, transparent 2.6px);
+    background-size:64px 64px;
+    background-position:32px 32px;
+    display:flex;align-items:center;justify-content:center;
+    touch-action:none;user-select:none;
+  }
+  #paw{position:fixed;right:8%;bottom:6%;width:34vmin;opacity:.9;pointer-events:none;}
+  #stage{position:relative;width:min(78vmin,520px);aspect-ratio:1;}
+  #dog{width:100%;height:100%;display:block;transform-origin:50% 78%;transition:transform .18s cubic-bezier(.34,1.56,.64,1);}
+  #dog.squish{transform:scale(1.06,.9);}
+  .fx{position:absolute;pointer-events:none;font-size:34px;animation:up 1s ease-out forwards;}
+  @keyframes up{
+    0%{opacity:0;transform:translate(0,0) scale(.4);}
+    25%{opacity:1;}
+    100%{opacity:0;transform:translate(var(--dx),-90px) scale(1.15);}
+  }
+</style>
+</head>
+<body>
+<svg id="paw" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#B79C86" opacity=".85">
+    <ellipse cx="70" cy="140" rx="30" ry="26"/>
+    <ellipse cx="40" cy="104" rx="12" ry="14"/>
+    <ellipse cx="66" cy="92" rx="12" ry="14"/>
+    <ellipse cx="94" cy="98" rx="12" ry="14"/>
+    <ellipse cx="112" cy="120" rx="11" ry="13"/>
+    <ellipse cx="150" cy="96" rx="26" ry="22"/>
+    <ellipse cx="126" cy="66" rx="11" ry="13"/>
+    <ellipse cx="150" cy="56" rx="11" ry="13"/>
+    <ellipse cx="176" cy="62" rx="11" ry="13"/>
+    <ellipse cx="190" cy="84" rx="10" ry="12"/>
+  </g>
+</svg>
+<div id="stage">
+  <svg id="dog" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+
+<g filter="url(#rough)">
+  <!-- 身体轮廓 -->
+  <path d="M200 45
+    C 268 45 330 70 342 130
+    C 352 182 350 250 340 292
+    C 332 326 300 340 262 342
+    C 240 343 232 330 200 330
+    C 168 330 160 343 138 342
+    C 100 340 68 326 60 292
+    C 50 250 48 182 58 130
+    C 70 70 132 45 200 45 Z"
+    fill="#FFFFFF" stroke="#C9A88A" stroke-width="7"/>
+</g>
+<!-- 腮红 -->
+<ellipse cx="128" cy="196" rx="30" ry="24" fill="#F0E0D2" opacity="0.85"/>
+<ellipse cx="272" cy="196" rx="30" ry="24" fill="#F0E0D2" opacity="0.85"/>
+<!-- 耳朵 垂耳 -->
+<g filter="url(#rough)">
+<path d="M132 58 C 100 70 74 104 68 142 C 62 176 74 200 98 202 C 120 204 132 188 134 162 C 138 126 136 84 134 60 Z" fill="#F0E0D2" stroke="#C9A88A" stroke-width="6" stroke-linejoin="round"/>
+<path d="M268 58 C 300 70 326 104 332 142 C 338 176 326 200 302 202 C 280 204 268 188 266 162 C 262 126 264 84 266 60 Z" fill="#F0E0D2" stroke="#C9A88A" stroke-width="6" stroke-linejoin="round"/>
+</g>
+<!-- 脚 -->
+<path d="M118 336 q14 22 28 0" fill="none" stroke="#C9A88A" stroke-width="6" stroke-linecap="round"/>
+<path d="M254 336 q14 22 28 0" fill="none" stroke="#C9A88A" stroke-width="6" stroke-linecap="round"/>
+<!-- 眼 -->
+<ellipse id="eyeL" cx="152" cy="176" rx="11" ry="12" fill="#2E2A26"/>
+<ellipse id="eyeR" cx="248" cy="176" rx="11" ry="12" fill="#2E2A26"/>
+<!-- 鼻 -->
+<ellipse cx="200" cy="212" rx="13" ry="9" fill="#B08A6E"/>
+<!-- 嘴 -->
+<path d="M200 221 v10 M200 231 q-10 10 -20 0 M200 231 q10 10 20 0" stroke="#C9A88A" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+<!-- 头顶毛 -->
+<g stroke="#D9C3AC" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.9">
+<path d="M200 92 q-8 22 2 40"/>
+<path d="M182 100 q-6 20 4 36"/>
+<path d="M218 100 q6 20 -4 36"/>
+<path d="M166 116 q-4 16 6 28"/>
+<path d="M234 116 q4 16 -6 28"/>
+</g>
+<!-- 下巴毛 -->
+<g stroke="#D9C3AC" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8">
+<path d="M200 248 q-6 18 2 32"/>
+<path d="M184 252 q-4 16 4 28"/>
+<path d="M216 252 q4 16 -4 28"/>
+</g>
+
+  </svg>
+</div>
+<script>
+const dog=document.getElementById('dog');
+const eyeL=document.getElementById('eyeL');
+const eyeR=document.getElementById('eyeR');
+const stage=document.getElementById('stage');
+let busy=false;
+
+// 弹簧音（WebAudio 合成，无需外部文件）
+let ac=null;
+function boing(){
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended') ac.resume();
+    const t=ac.currentTime;
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(760,t);
+    o.frequency.exponentialRampToValueAtTime(180,t+0.28);
+    o.frequency.exponentialRampToValueAtTime(520,t+0.42);
+    o.frequency.exponentialRampToValueAtTime(240,t+0.6);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.65);
+    o.connect(g).connect(ac.destination);
+    o.start(t);o.stop(t+0.7);
+  }catch(e){}
+}
+
+function eyesLine(){
+  [eyeL,eyeR].forEach(e=>{
+    e.setAttribute('rx','13');
+    e.setAttribute('ry','2.6');
+  });
+}
+function eyesDot(){
+  [eyeL,eyeR].forEach(e=>{
+    e.setAttribute('rx','11');
+    e.setAttribute('ry','12');
+  });
+}
+
+const words=['汪','汪！','汪汪','汪~'];
+function spawn(){
+  const r=stage.getBoundingClientRect();
+  // 爱心
+  for(let i=0;i<3;i++){
+    const s=document.createElement('div');
+    s.className='fx';
+    s.textContent='💗';
+    s.style.left=(20+Math.random()*60)+'%';
+    s.style.top=(18+Math.random()*22)+'%';
+    s.style.setProperty('--dx',(Math.random()*70-35)+'px');
+    s.style.animationDelay=(i*0.08)+'s';
+    stage.appendChild(s);
+    setTimeout(()=>s.remove(),1300);
+  }
+  // 汪汪
+  const w=document.createElement('div');
+  w.className='fx';
+  w.textContent=words[Math.floor(Math.random()*words.length)];
+  w.style.left='50%';
+  w.style.top='8%';
+  w.style.transform='translateX(-50%)';
+  w.style.fontSize='30px';
+  w.style.fontWeight='700';
+  w.style.color='#B08A6E';
+  w.style.setProperty('--dx','0px');
+  stage.appendChild(w);
+  setTimeout(()=>w.remove(),1300);
+}
+
+function squeeze(){
+  if(busy) return;
+  busy=true;
+  dog.classList.add('squish');
+  eyesLine();
+  boing();
+  spawn();
+  setTimeout(()=>{
+    dog.classList.remove('squish');
+    eyesDot();
+    busy=false;
+  },620);
+}
+
+stage.addEventListener('pointerdown',e=>{e.preventDefault();squeeze();});
+</script>
+</body>
+</html>

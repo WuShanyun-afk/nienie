@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>捏捏乐</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#FFF6F0;
+    -webkit-tap-highlight-color:transparent;user-select:none;}
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  svg{width:min(92vw,92vh);height:auto;overflow:visible;
+      transition:transform .18s cubic-bezier(.34,1.56,.64,1);
+      touch-action:none;cursor:pointer;}
+  #pet{transform-origin:400px 560px;}
+  .squish #pet{transform:scale(1.07,.9);}
+  .jump #pet{transform:translateY(-70px) scale(.96,1.06);}
+</style>
+</head>
+<body>
+<div id="stage">
+<svg id="svg" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="head" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE3D2"/>
+      <stop offset="45%" stop-color="#FFA07A"/>
+      <stop offset="100%" stop-color="#FC5E55"/>
+    </linearGradient>
+    <linearGradient id="frontG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFC9A8"/>
+      <stop offset="100%" stop-color="#FFB38A"/>
+    </linearGradient>
+    <linearGradient id="backG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FE9C7A"/>
+      <stop offset="100%" stop-color="#FE8C68"/>
+    </linearGradient>
+  </defs>
+
+  <g id="pet">
+    <!-- 猫耳 -->
+    <path id="earL" d="M218 306 C 178 240 190 160 262 158 C 322 156 336 236 330 300 Z" fill="#FE8C68"/>
+    <path id="earR" d="M582 306 C 622 240 610 160 538 158 C 478 156 464 236 470 300 Z" fill="#FE8C68"/>
+
+    <!-- 后肢 -->
+    <g id="backG" fill="url(#backG)">
+      <ellipse cx="243" cy="560" rx="62" ry="88" transform="rotate(-12 243 560)"/>
+      <ellipse cx="557" cy="560" rx="62" ry="88" transform="rotate(12 557 560)"/>
+    </g>
+    <!-- 前肢 -->
+    <g id="frontG" fill="url(#frontG)">
+      <ellipse cx="352" cy="596" rx="64" ry="92" transform="rotate(-4 352 596)"/>
+      <ellipse cx="448" cy="596" rx="64" ry="92" transform="rotate(4 448 596)"/>
+    </g>
+
+    <!-- 半圆脑袋 -->
+    <path id="headPath" d="M400 190 C 555 190 645 315 645 448 C 645 520 540 560 400 560 C 260 560 155 520 155 448 C 155 315 245 190 400 190 Z"
+          fill="url(#head)"/>
+
+    <!-- 头顶三道纹 -->
+    <path id="stripes" d="M360 258 v44 M400 252 v44 M440 258 v44" stroke="#FFE3D2" stroke-width="16" stroke-linecap="round"/>
+
+    <!-- 腮红 -->
+    <circle cx="252" cy="452" r="34" fill="#F9B1BB"/>
+    <circle cx="548" cy="452" r="34" fill="#F9B1BB"/>
+
+    <!-- 豆豆眼 -->
+    <g id="eyes">
+      <ellipse cx="308" cy="398" rx="25" ry="30" fill="#6F5548"/>
+      <ellipse cx="492" cy="398" rx="25" ry="30" fill="#6F5548"/>
+    </g>
+    <!-- 横线眼 -->
+    <g id="lineEyes" style="display:none" stroke="#6F5548" stroke-width="13" stroke-linecap="round">
+      <path d="M283 398 h50"/>
+      <path d="M467 398 h50"/>
+    </g>
+
+    <!-- w 嘴 -->
+    <path id="mouth" d="M368 442 Q 384 468 400 448 Q 416 468 432 442"
+          fill="none" stroke="#6F5548" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <g id="inkLayer"></g>
+</svg>
+</div>
+
+<script>
+const svg = document.getElementById('svg');
+const pet = document.getElementById('pet');
+const inkLayer = document.getElementById('inkLayer');
+const eyes = document.getElementById('eyes');
+const lineEyes = document.getElementById('lineEyes');
+
+let ac = null;
+function audio(){
+  if(!ac) ac = new (window.AudioContext||window.webkitAudioContext)();
+  if(ac.state === 'suspended') ac.resume();
+  return ac;
+}
+
+/* 噗嗤喷墨声：噪声 + 低通扫频 */
+function playPuff(){
+  const c = audio(), t = c.currentTime, dur = 0.35;
+  const buf = c.createBuffer(1, c.sampleRate*dur, c.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<d.length;i++){
+    const p = i/d.length;
+    d[i] = (Math.random()*2-1) * Math.pow(1-p, 2.2);
+  }
+  const src = c.createBufferSource(); src.buffer = buf;
+  const lp = c.createBiquadFilter(); lp.type='lowpass';
+  lp.frequency.setValueAtTime(3200, t);
+  lp.frequency.exponentialRampToValueAtTime(320, t+dur);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.55, t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  src.connect(lp).connect(g).connect(c.destination);
+  src.start(t); src.stop(t+dur);
+}
+
+/* 喵：两个带共振峰的滑音 */
+function playMeow(){
+  const c = audio(), t = c.currentTime, dur = 0.55;
+  const osc = c.createOscillator(); osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(520, t);
+  osc.frequency.linearRampToValueAtTime(760, t+dur*0.35);
+  osc.frequency.linearRampToValueAtTime(430, t+dur);
+  const f1 = c.createBiquadFilter(); f1.type='bandpass'; f1.frequency.value=900; f1.Q.value=6;
+  const f2 = c.createBiquadFilter(); f2.type='bandpass'; f2.frequency.value=2100; f2.Q.value=8;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.30, t+0.06);
+  g.gain.setValueAtTime(0.30, t+dur*0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  osc.connect(f1); osc.connect(f2);
+  f1.connect(g); f2.connect(g); g.connect(c.destination);
+  osc.start(t); osc.stop(t+dur);
+}
+
+/* 变色：红橙黄绿青蓝紫 */
+const HUES = [0, 30, 55, 120, 180, 225, 280];
+let hi = 0;
+function recolor(){
+  const h = HUES[hi % HUES.length]; hi++;
+  const set = (id, l1, l2) => {
+    const g = document.getElementById(id);
+    const s = g.querySelectorAll('stop');
+    s[0].setAttribute('stop-color', `hsl(${h} 100% ${l1}%)`);
+    s[1].setAttribute('stop-color', `hsl(${h} 90% ${l2}%)`);
+  };
+  set('head', 92, 68);
+  set('frontG', 86, 78);
+  set('backG', 72, 64);
+  const ear = `hsl(${h} 90% 64%)`;
+  document.getElementById('earL').setAttribute('fill', ear);
+  document.getElementById('earR').setAttribute('fill', ear);
+}
+
+/* 喷墨 */
+function ink(){
+  const NS = 'http://www.w3.org/2000/svg';
+  // 四根触手底部：喷口位置
+  const nozzles = [
+    {x:243, y:640},
+    {x:352, y:678},
+    {x:448, y:678},
+    {x:557, y:640}
+  ];
+  nozzles.forEach(n => {
+    for(let i=0;i<5;i++){
+      const c = document.createElementNS(NS,'circle');
+      const sx = n.x + (Math.random()-.5)*40;
+      const sy = n.y + (Math.random()-.5)*24;
+      c.setAttribute('cx', sx);
+      c.setAttribute('cy', sy);
+      c.setAttribute('r', 10 + Math.random()*22);
+      c.setAttribute('fill', '#2B2B33');
+      c.setAttribute('opacity', 0.85);
+      inkLayer.appendChild(c);
+      const dx = (sx - 400) * 0.9 + (Math.random()-.5)*90;
+      const dy = 90 + Math.random()*180;
+      c.animate(
+        [{transform:'translate(0,0) scale(.35)', opacity:.95},
+         {transform:`translate(${dx}px, ${dy}px) scale(1.2)`, opacity:0}],
+        {duration: 750+Math.random()*450, easing:'cubic-bezier(.15,.75,.35,1)'}
+      );
+      setTimeout(()=>c.remove(), 1300);
+    }
+  });
+}
+
+/* 眼睛变横线 */
+let eyeTimer = null;
+function lineEyesOn(){
+  eyes.style.display = 'none';
+  lineEyes.style.display = '';
+  clearTimeout(eyeTimer);
+  eyeTimer = setTimeout(()=>{
+    eyes.style.display = '';
+    lineEyes.style.display = 'none';
+  }, 900);
+}
+
+/* 向上跳 + 喵 */
+function jumpMeow(){
+  pet.classList.add('jump');
+  setTimeout(()=>pet.classList.remove('jump'), 260);
+  playMeow();
+}
+
+let busy = false;
+function poke(){
+  if(busy) return; busy = true;
+  audio();
+  pet.classList.add('squish');
+  setTimeout(()=>pet.classList.remove('squish'), 180);
+
+  const r = Math.random();
+  if(r < 0.34){ recolor(); }
+  else if(r < 0.67){ playPuff(); ink(); }
+  else { lineEyesOn(); jumpMeow(); }
+
+  setTimeout(()=>busy = false, 220);
+}
+
+/* 长按：连续喷墨 */
+let holdTimer = null, holding = false;
+function startHold(){
+  if(holding) return; holding = true;
+  holdTimer = setInterval(()=>{ playPuff(); ink(); }, 260);
+}
+function stopHold(){
+  holding = false;
+  clearInterval(holdTimer); holdTimer = null;
+}
+
+/* 双击：直接换色 */
+let lastTap = 0, tapTimer = null;
+function onDown(e){
+  e.preventDefault();
+  audio();
+  const now = Date.now();
+  if(now - lastTap < 300){
+    clearTimeout(tapTimer); tapTimer = null;
+    lastTap = 0;
+    recolor();
+    pet.classList.add('squish');
+    setTimeout(()=>pet.classList.remove('squish'), 180);
+    return;
+  }
+  lastTap = now;
+  tapTimer = setTimeout(()=>{ tapTimer = null; poke(); }, 300);
+  startHold();
+}
+function onUp(){ stopHold(); }
+
+svg.addEventListener('pointerdown', onDown);
+svg.addEventListener('pointerup', onUp);
+svg.addEventListener('pointercancel', onUp);
+svg.addEventListener('pointerleave', onUp);
+</script>
+</body>
+</html>

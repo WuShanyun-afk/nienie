@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>角落兔捏捏乐</title>
+<style>
+html,body{margin:0;height:100%;background:#ffffff;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+svg{width:min(92vw,92vh);height:min(92vw,92vh);cursor:pointer;display:block;position:relative;z-index:2;}
+#bun{transform-box:view-box;transform-origin:200px 372px;}
+#hand{opacity:0;pointer-events:none;}
+.float{position:fixed;z-index:9;pointer-events:none;transform:translate(-50%,-50%);
+background:rgba(255,255,255,0.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+border:1.5px solid rgba(107,74,58,0.18);border-radius:14px;padding:4px 11px;
+font-size:16px;color:#6B4A3A;white-space:nowrap;box-shadow:0 2px 8px rgba(107,74,58,0.12);}
+#tip{position:fixed;left:0;right:0;bottom:22px;text-align:center;z-index:8;
+font-size:15px;color:#B9A79A;letter-spacing:2px;pointer-events:none;}
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="body"><path d="M200 122 C144 122 106 158 102 220 C98 284 108 336 138 360 C158 376 242 376 262 360 C292 336 302 284 298 220 C294 158 256 122 200 122 Z"/></clipPath>
+<pattern id="bgdot" width="46" height="46" patternUnits="userSpaceOnUse">
+<circle cx="12" cy="12" r="4.2" fill="#A9C8F0"/>
+<circle cx="35" cy="35" r="4.2" fill="#A9C8F0"/>
+</pattern>
+<pattern id="bgline" width="34" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+<line x1="0" y1="0" x2="0" y2="34" stroke="#F5B7C8" stroke-width="3" stroke-dasharray="7 8"/>
+</pattern>
+</defs>
+<rect width="400" height="400" fill="#ffffff"/>
+<rect width="400" height="400" fill="url(#bgdot)" opacity="0.55"/>
+<rect width="400" height="400" fill="url(#bgline)" opacity="0.45"/>
+<g id="bun">
+<g style="stroke:#6B4A3A;stroke-width:9;stroke-linecap:round;stroke-linejoin:round">
+<path d="M154 136 L154 58 C154 40 172 30 184 36 C196 42 200 54 200 70 L200 134" fill="#FFFFFF"/>
+<path d="M246 136 L246 58 C246 40 228 30 216 36 C204 42 200 54 200 70 L200 134" fill="#FFFFFF"/>
+<path d="M200 122 C144 122 106 158 102 220 C98 284 108 336 138 360 C158 376 242 376 262 360 C292 336 302 284 298 220 C294 158 256 122 200 122 Z" fill="#FFFFFF"/>
+<path d="M166 128 L166 66 C166 52 174 46 181 49 C188 52 190 60 190 72 L190 128" fill="#F6DCE0" stroke="none"/>
+<path d="M234 128 L234 66 C234 52 226 46 219 49 C212 52 210 60 210 72 L210 128" fill="#DCE4F2" stroke="none"/>
+<g clip-path="url(#body)">
+<rect x="90" y="248" width="220" height="62" fill="#CBD5EA" stroke="none"/>
+<ellipse cx="172" cy="284" rx="15" ry="13" fill="#FFFFFF" stroke="none"/>
+<ellipse cx="228" cy="284" rx="15" ry="13" fill="#FFFFFF" stroke="none"/>
+<path d="M176 272 C190 276 192 294 180 300" fill="none" stroke-width="7"/>
+<path d="M224 272 C210 276 208 294 220 300" fill="none" stroke-width="7"/>
+<path d="M182 344 C196 350 198 366 186 372" fill="none" stroke-width="7"/>
+<path d="M218 344 C204 350 202 366 214 372" fill="none" stroke-width="7"/>
+</g>
+<path d="M200 122 C144 122 106 158 102 220 C98 284 108 336 138 360 C158 376 242 376 262 360 C292 336 302 284 298 220 C294 158 256 122 200 122 Z" fill="none"/>
+</g>
+<g id="eyesOpen">
+<ellipse cx="174" cy="192" rx="7" ry="8" fill="#5A4032"/>
+<ellipse cx="226" cy="192" rx="7" ry="8" fill="#5A4032"/>
+</g>
+<g id="eyesShut" style="display:none" stroke="#6B4A3A" stroke-width="5.5" stroke-linecap="round" fill="none">
+<path d="M164 193 Q174 184 184 193"/>
+<path d="M216 193 Q226 184 236 193"/>
+</g>
+<path d="M193 200 C193 195 207 195 207 200 C207 205 200 209 200 209 C200 209 193 205 193 200 Z" fill="#E8A87C"/>
+<path d="M193 221 L200 214 L207 221" fill="none" stroke="#6B4A3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text id="hand" x="200" y="176" font-size="52" text-anchor="middle">🤚</text>
+</svg>
+</div>
+<div id="tip">点一下</div>
+<script>
+var svg=document.querySelector('svg');
+var bun=document.getElementById('bun');
+var eo=document.getElementById('eyesOpen');
+var es=document.getElementById('eyesShut');
+var hand=document.getElementById('hand');
+var tip=document.getElementById('tip');
+var raf=null,startT=0,DUR=460,AX=1.12,AY=0.86;
+var petTimer=null,handRaf=null,handT0=0;
+var msgs=['(๑>ᴗ<๑)','(*ˊᵕˋ*)','(๑´ㅂ`๑)','(≧▽≦)','(๑•̀ㅂ•́)و','( ˘ ³˘)','(๑˃̵ᴗ˂̵)','(´｡• ᵕ •｡`)'];
+var ac=null;
+function getAC(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(ac&&ac.state==='suspended'){ac.resume();}return ac;}
+function hengji(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+function peep(t0,base,dur){
+var o=c.createOscillator();var g=c.createGain();
+o.type='sine';
+o.frequency.setValueAtTime(base,t0);
+o.frequency.exponentialRampToValueAtTime(base*1.35,t0+dur*0.45);
+o.frequency.exponentialRampToValueAtTime(base*0.85,t0+dur);
+g.gain.setValueAtTime(0.0001,t0);
+g.gain.exponentialRampToValueAtTime(0.26,t0+0.02);
+g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.02);
+}
+peep(t,620,0.17);
+peep(t+0.19,700,0.15);
+peep(t+0.36,560,0.2);
+}
+function spring(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+var o=c.createOscillator();var g=c.createGain();
+o.type='triangle';
+o.frequency.setValueAtTime(1200,t);
+o.frequency.exponentialRampToValueAtTime(260,t+0.26);
+g.gain.setValueAtTime(0.0001,t);
+g.gain.exponentialRampToValueAtTime(0.3,t+0.012);
+g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.32);
+var o2=c.createOscillator();var g2=c.createGain();
+o2.type='sine';
+o2.frequency.setValueAtTime(300,t+0.05);
+o2.frequency.exponentialRampToValueAtTime(900,t+0.22);
+g2.gain.setValueAtTime(0.0001,t+0.05);
+g2.gain.exponentialRampToValueAtTime(0.16,t+0.07);
+g2.gain.exponentialRampToValueAtTime(0.0001,t+0.26);
+o2.connect(g2);g2.connect(c.destination);o2.start(t+0.05);o2.stop(t+0.28);
+}
+function pop(){
+var d=document.createElement('div');d.className='float';
+d.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+var r=svg.getBoundingClientRect();
+var x=r.left+r.width*(0.3+Math.random()*0.4);
+var y=r.top+r.height*0.3;
+d.style.left=x+'px';d.style.top=y+'px';
+document.body.appendChild(d);
+var t0=0,dur=1000;
+function step(ts){if(!t0)t0=ts;var k=(ts-t0)/dur;if(k>=1){d.remove();return;}
+d.style.top=(y-64*k)+'px';d.style.opacity=String(1-k*k);requestAnimationFrame(step);}
+requestAnimationFrame(step);
+}
+function tick(ts){
+if(!startT)startT=ts;
+var k=(ts-startT)/DUR;
+if(k>=1){bun.style.transform='';raf=null;return;}
+var p=Math.sin(Math.PI*k);
+var sx=1+(AX-1)*p;var sy=1-(1-AY)*p;
+bun.style.transform='scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+requestAnimationFrame(tick);
+}
+function bounce(){
+getAC();
+if(raf){cancelAnimationFrame(raf);}
+startT=0;
+spring();pop();
+raf=requestAnimationFrame(tick);
+}
+function petStart(){
+getAC();
+if(petTimer)clearTimeout(petTimer);
+eo.style.display='none';es.style.display='';
+hand.style.opacity='1';
+if(handRaf)cancelAnimationFrame(handRaf);
+handT0=0;
+function hs(ts){if(!handT0)handT0=ts;var k=(ts-handT0)/700;if(k>=1)k=1;
+var yy=176-14*Math.sin(Math.PI*k);
+var xx=200+30*Math.sin(Math.PI*k*2);
+hand.setAttribute('x',xx.toFixed(1));hand.setAttribute('y',yy.toFixed(1));
+if(k<1)handRaf=requestAnimationFrame(hs);}
+handRaf=requestAnimationFrame(hs);
+hengji();
+petTimer=setTimeout(function(){
+eo.style.display='';es.style.display='none';
+hand.style.opacity='0';
+},900);
+}
+svg.addEventListener('pointerdown',function(e){
+e.preventDefault();
+var r=svg.getBoundingClientRect();
+var px=(e.clientX-r.left)/r.width*400;
+var py=(e.clientY-r.top)/r.height*400;
+if(px>112&&px<288&&py>240&&py<330){bounce();}
+else{petStart();}
+});
+setTimeout(function(){tip.style.transition='opacity .6s';tip.style.opacity='0';},2600);
+</script>
+</body>
+</html>
