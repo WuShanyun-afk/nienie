@@ -1,4 +1,4 @@
-# 捏捏乐网页 · 同步 + 推到 GitHub Pages
+﻿# 捏捏乐网页 · 同步 + 推到 GitHub Pages
 # 由 发布.bat 调用，也可以直接右键“使用 PowerShell 运行”
 #
 # 做的事：

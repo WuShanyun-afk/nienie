@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小鸡捏捏乐</title>
+<style>
+html,body{margin:0;height:100%;background:#d7e8e8;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+svg{width:min(92vw,92vh);height:min(92vw,92vh);cursor:pointer;display:block;}
+#chick{transform-box:view-box;transform-origin:200px 324px;}
+#wingL{transform-box:view-box;transform-origin:128px 256px;}
+#wingR{transform-box:view-box;transform-origin:272px 256px;}
+.float{position:fixed;font-size:30px;pointer-events:none;z-index:9;transform:translate(-50%,-50%);}
+#hint{position:fixed;left:50%;bottom:6%;transform:translateX(-50%);font:14px/1.6 -apple-system,"PingFang SC",sans-serif;color:#8FA8A8;letter-spacing:2px;pointer-events:none;transition:opacity 1.2s;}
+#bubble{position:fixed;left:50%;top:12%;transform:translate(-50%,-6px) scale(0.85);opacity:0;
+background:rgba(255,252,235,0.94);color:#A25210;
+border:1.5px solid rgba(255,218,61,0.75);
+border-radius:18px;padding:10px 18px;
+font:16px/1.4 -apple-system,"PingFang SC",sans-serif;letter-spacing:1px;
+box-shadow:0 6px 18px rgba(162,82,16,0.14);
+backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+pointer-events:none;z-index:20;white-space:nowrap;
+transition:opacity .28s ease,transform .28s cubic-bezier(.34,1.56,.64,1);}
+#bubble.on{opacity:1;transform:translate(-50%,0) scale(1);}
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="400" fill="#d7e8e8"/>
+<g fill="#ffffff" opacity="0.55">
+<circle cx="52" cy="62" r="10"/>
+<circle cx="152" cy="42" r="7"/>
+<circle cx="258" cy="72" r="9"/>
+<circle cx="348" cy="48" r="6"/>
+<circle cx="42" cy="162" r="7"/>
+<circle cx="358" cy="152" r="9"/>
+<circle cx="34" cy="262" r="9"/>
+<circle cx="368" cy="252" r="7"/>
+<circle cx="62" cy="352" r="8"/>
+<circle cx="172" cy="372" r="6"/>
+<circle cx="282" cy="362" r="9"/>
+<circle cx="358" cy="342" r="7"/>
+</g>
+<g id="chick">
+<g stroke="#A25210" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M172 320 L172 352"/>
+<path d="M172 352 L154 364"/>
+<path d="M172 352 L190 364"/>
+<path d="M172 352 L172 368"/>
+<path d="M228 320 L228 352"/>
+<path d="M228 352 L210 364"/>
+<path d="M228 352 L246 364"/>
+<path d="M228 352 L228 368"/>
+</g>
+<g stroke="#A25210" stroke-width="8" fill="#FFE655" stroke-linejoin="round" stroke-linecap="round">
+<ellipse cx="200" cy="206" rx="104" ry="118"/>
+<path id="wingL" d="M104 236 Q66 254 86 274 Q110 288 128 256 Z"/>
+<path id="wingR" d="M296 236 Q334 254 314 274 Q290 288 272 256 Z"/>
+</g>
+<g fill="#F88A93" opacity="0.95">
+<circle cx="128" cy="214" r="18"/>
+<circle cx="272" cy="214" r="18"/>
+</g>
+
+<g id="eyesOpen" fill="#333333">
+<ellipse cx="158" cy="182" rx="7" ry="10"/>
+<ellipse cx="242" cy="182" rx="7" ry="10"/>
+</g>
+<g id="eyesClosed" style="display:none" fill="#333333">
+<ellipse cx="158" cy="182" rx="13" ry="3.5"/>
+<ellipse cx="242" cy="182" rx="13" ry="3.5"/>
+</g>
+<g fill="#F0AA03" stroke="#A25210" stroke-width="4" stroke-linejoin="round">
+<path d="M200 214 L184 196 L216 196 Z"/>
+</g>
+</g>
+</svg>
+</div>
+<div id="hint">点一下</div>
+<div id="bubble"></div>
+<script>
+var svg=document.querySelector('svg');
+var chick=document.getElementById('chick');
+var wingL=document.getElementById('wingL');
+var wingR=document.getElementById('wingR');
+var eyesOpen=document.getElementById('eyesOpen');
+var eyesClosed=document.getElementById('eyesClosed');
+var hint=document.getElementById('hint');
+var bubble=document.getElementById('bubble');
+var raf=null,startT=0,DUR=460,AX=1.16,AY=0.94;
+var ac=null;
+var FACES=['(๑•̀ㅂ•́)و','(๑˃̵ᴗ˂̵)','(๑>◡<๑)','(๑•́ ₃ •̀๑)','(๑･ω･๑)','(≧▽≦)','(๑>ᴗ<๑)'];
+var first=true,bubTimer=null;
+function getAC(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(ac&&ac.state==='suspended'){ac.resume();}return ac;}
+function squeak(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+var o=c.createOscillator();var g=c.createGain();
+o.type='triangle';
+o.frequency.setValueAtTime(1200,t);
+o.frequency.exponentialRampToValueAtTime(2100,t+0.05);
+o.frequency.exponentialRampToValueAtTime(1000,t+0.12);
+g.gain.setValueAtTime(0.0001,t);
+g.gain.exponentialRampToValueAtTime(0.22,t+0.012);
+g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
+o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.16);
+var o2=c.createOscillator();var g2=c.createGain();
+o2.type='sine';
+o2.frequency.setValueAtTime(2400,t+0.02);
+o2.frequency.exponentialRampToValueAtTime(1700,t+0.09);
+g2.gain.setValueAtTime(0.0001,t+0.02);
+g2.gain.exponentialRampToValueAtTime(0.09,t+0.035);
+g2.gain.exponentialRampToValueAtTime(0.0001,t+0.11);
+o2.connect(g2);g2.connect(c.destination);o2.start(t+0.02);o2.stop(t+0.13);
+}
+function coo(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+var o=c.createOscillator();var g=c.createGain();
+o.type='sine';
+o.frequency.setValueAtTime(620,t);
+o.frequency.linearRampToValueAtTime(780,t+0.08);
+o.frequency.linearRampToValueAtTime(600,t+0.18);
+g.gain.setValueAtTime(0.0001,t);
+g.gain.exponentialRampToValueAtTime(0.14,t+0.03);
+g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.24);
+}
+function pop(){
+var d=document.createElement('div');d.className='float';
+var r=svg.getBoundingClientRect();
+d.textContent='🥰';
+var x=r.left+r.width*(0.28+Math.random()*0.44);
+var y=r.top+r.height*0.32;
+d.style.left=x+'px';d.style.top=y+'px';
+document.body.appendChild(d);
+var t0=0,dur=900;
+function step(ts){if(!t0)t0=ts;var k=(ts-t0)/dur;if(k>=1){d.remove();return;}
+d.style.top=(y-80*k)+'px';d.style.opacity=String(1-k*k);requestAnimationFrame(step);}
+requestAnimationFrame(step);
+}
+function say(){
+bubble.textContent=FACES[Math.floor(Math.random()*FACES.length)];
+bubble.classList.add('on');
+if(bubTimer)clearTimeout(bubTimer);
+bubTimer=setTimeout(function(){bubble.classList.remove('on');},1400);
+}
+function tick(ts){
+if(!startT)startT=ts;
+var k=(ts-startT)/DUR;
+if(k>=1){chick.style.transform='';wingL.style.transform='';wingR.style.transform='';
+eyesOpen.style.display='';eyesClosed.style.display='none';raf=null;return;}
+var p=Math.sin(Math.PI*k);
+var sx=1+(AX-1)*p;var sy=1-(1-AY)*p;
+var jump=-46*Math.sin(Math.PI*k);
+var flap=Math.sin(Math.PI*k*6)*26;
+chick.style.transform='translate(0px,'+jump.toFixed(2)+'px) scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+wingL.style.transform='rotate('+(-flap).toFixed(2)+'deg)';
+wingR.style.transform='rotate('+flap.toFixed(2)+'deg)';
+requestAnimationFrame(tick);
+}
+function squish(){
+getAC();
+if(first){first=false;hint.style.opacity='0';}
+if(raf){cancelAnimationFrame(raf);}
+startT=0;
+eyesOpen.style.display='none';eyesClosed.style.display='';
+coo();pop();say();
+raf=requestAnimationFrame(tick);
+}
+svg.addEventListener('pointerdown',function(e){e.preventDefault();squish();});
+setTimeout(function(){hint.style.opacity='0';},2600);
+</script>
+</body>
+</html>
