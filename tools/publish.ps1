@@ -47,6 +47,24 @@ foreach ($f in (Get-ChildItem $src -Filter *.html)) {
 }
 Write-Host "  [同步] 从 捏捏乐合集 复制了 $n 个文件。" -ForegroundColor Green
 
+# 首页「图」那一栏用的透明 PNG，来源是 沈舒晚绘制的图\
+$imgSrc = Join-Path $ws '沈舒晚绘制的图'
+$imgDst = Join-Path $site 'img'
+if (-not (Test-Path $imgDst)) { New-Item -ItemType Directory -Path $imgDst -Force | Out-Null }
+$pics = @('koala1.png', 'chick1.png', 'chickcook1.png')
+$m = 0
+foreach ($p in $pics) {
+    $one = Join-Path $imgSrc $p
+    if (Test-Path $one) {
+        Copy-Item $one (Join-Path $imgDst $p) -Force
+        $m++
+    }
+    else {
+        Write-Host "  [注意] 找不到 $p" -ForegroundColor Yellow
+    }
+}
+Write-Host "  [同步] 从 沈舒晚绘制的图 复制了 $m 张图 → img\" -ForegroundColor Green
+
 Set-Location $site
 
 # ---------------- 第二步：本地存一次记录 ----------------
