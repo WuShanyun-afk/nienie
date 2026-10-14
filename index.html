@@ -52,6 +52,21 @@
   a.card .emo{font-size:26px;line-height:1;}
   a.card .t{font-size:15px;font-weight:600;letter-spacing:.02em;margin-top:10px;}
   a.card .s{font-size:11px;color:var(--sub);letter-spacing:.04em;margin-top:4px;}
+  h2.sec{
+    display:flex;align-items:center;gap:10px;
+    margin:34px 0 0;font-size:14px;font-weight:600;letter-spacing:.12em;color:var(--ink);
+  }
+  h2.sec .n{color:var(--sub);font-weight:400;font-size:11.5px;letter-spacing:.06em;}
+  h2.sec::after{content:"";flex:1;height:1px;background:var(--line);}
+  a.card.pic{
+    min-height:0;padding:8px 8px 12px;justify-content:flex-start;
+  }
+  a.card.pic img{
+    display:block;width:100%;aspect-ratio:1/1;object-fit:contain;
+    background:#FBFDFF;border-radius:12px;
+  }
+  a.card.pic .cap{margin-top:9px;padding:0 5px;}
+  a.card.pic .t{margin-top:0;}
   .empty{display:none;color:var(--sub);font-size:14px;padding:22px 0;}
   footer{
     margin-top:30px;padding-top:18px;border-top:1px solid var(--line);
@@ -64,9 +79,9 @@
 
   <header>
     <h1>捏捏乐<span class="dot">.</span></h1>
-    <div class="meta">20 只 · 点一下，它会弹一下<br>手机可以「添加到主屏幕」，跟 App 一样开</div>
+    <div class="meta">20 只捏捏乐 + 3 张图 · 点一下，它会弹一下<br>手机可以「添加到主屏幕」，跟 App 一样开</div>
     <div class="search">
-      <input id="q" type="text" placeholder="搜一下… 虎鲸 / 兔子 / 猫" autocomplete="off">
+      <input id="q" type="text" placeholder="搜一下… 虎鲸 / 兔子 / 考拉" autocomplete="off">
     </div>
   </header>
 
@@ -153,6 +168,22 @@
     </a>
   </div>
 
+  <h2 class="sec">图 <span class="n">3</span></h2>
+  <div class="grid">
+    <a class="card pic" href="img/koala1.png">
+      <img src="img/koala1.png" alt="考拉" loading="lazy">
+      <div class="cap"><div class="t">考拉</div><div class="s">透明 PNG · 1600</div></div>
+    </a>
+    <a class="card pic" href="img/chick1.png">
+      <img src="img/chick1.png" alt="小鸡" loading="lazy">
+      <div class="cap"><div class="t">小鸡</div><div class="s">透明 PNG · 1600</div></div>
+    </a>
+    <a class="card pic" href="img/chickcook1.png">
+      <img src="img/chickcook1.png" alt="小鸡厨师" loading="lazy">
+      <div class="cap"><div class="t">小鸡厨师</div><div class="s">透明 PNG · 1600</div></div>
+    </a>
+  </div>
+
   <div class="empty" id="empty">没有找到。🙁</div>
 
   <footer>
@@ -174,6 +205,16 @@
       var ok = k === '' || c.textContent.toLowerCase().indexOf(k) >= 0;
       c.style.display = ok ? '' : 'none';
       if (ok) hit++;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.grid'), function(g){
+      var any = Array.prototype.some.call(g.querySelectorAll('a.card'), function(c){
+        return c.style.display !== 'none';
+      });
+      g.style.display = any ? '' : 'none';
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('h2.sec'), function(h){
+      var g = h.nextElementSibling;
+      h.style.display = (g && g.style.display !== 'none') ? '' : 'none';
     });
     empty.style.display = hit ? 'none' : 'block';
   });
