@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>考拉捏捏乐</title>
+<style>
+html,body{margin:0;height:100%;background:#ffffff;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+svg{width:min(92vw,92vh);height:min(92vw,92vh);cursor:pointer;display:block;}
+#koala{transform-box:view-box;transform-origin:200px 300px;}
+.float{position:fixed;font-size:30px;pointer-events:none;z-index:9;transform:translate(-50%,-50%);}
+#hint{position:fixed;left:50%;bottom:6%;transform:translateX(-50%);font:14px/1.6 -apple-system,"PingFang SC",sans-serif;color:#B9B9B9;letter-spacing:2px;pointer-events:none;transition:opacity 1.2s;}
+#bubble{position:fixed;left:50%;top:12%;transform:translate(-50%,-6px) scale(0.85);opacity:0;
+background:rgba(240,236,231,0.92);color:#6B6259;
+border:1.5px solid rgba(190,180,170,0.55);
+border-radius:18px;padding:10px 18px;
+font:16px/1.4 -apple-system,"PingFang SC",sans-serif;letter-spacing:1px;
+box-shadow:0 6px 18px rgba(150,140,130,0.18);
+backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+pointer-events:none;z-index:20;white-space:nowrap;
+transition:opacity .28s ease,transform .28s cubic-bezier(.34,1.56,.64,1);}
+#bubble.on{opacity:1;transform:translate(-50%,0) scale(1);}
+</style>
+</head>
+<body>
+<div id="wrap">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="400" fill="#ffffff"/>
+<g fill="#A8D5C0" opacity="0.45">
+<circle cx="50" cy="60" r="10"/>
+<circle cx="150" cy="40" r="7"/>
+<circle cx="260" cy="70" r="9"/>
+<circle cx="350" cy="45" r="6"/>
+<circle cx="40" cy="160" r="7"/>
+<circle cx="360" cy="150" r="9"/>
+<circle cx="30" cy="260" r="9"/>
+<circle cx="370" cy="250" r="7"/>
+<circle cx="60" cy="350" r="8"/>
+<circle cx="170" cy="370" r="6"/>
+<circle cx="280" cy="360" r="9"/>
+<circle cx="360" cy="340" r="7"/>
+</g>
+<g id="koala">
+<g stroke="#6B6B6B" stroke-width="9" fill="#CFCFCF" stroke-linejoin="round" stroke-linecap="round">
+<circle cx="104" cy="146" r="48"/>
+<circle cx="296" cy="146" r="48"/>
+</g>
+<g fill="#CDA4B4">
+<circle cx="104" cy="146" r="27"/>
+<circle cx="296" cy="146" r="27"/>
+</g>
+<g stroke="#6B6B6B" stroke-width="9" fill="#CFCFCF" stroke-linejoin="round" stroke-linecap="round">
+<ellipse cx="200" cy="200" rx="114" ry="100"/>
+</g>
+<g fill="#9C9C9C">
+<ellipse cx="200" cy="196" rx="34" ry="27"/>
+</g>
+<g fill="#333333">
+<ellipse cx="200" cy="198" rx="14" ry="12"/>
+</g>
+<g id="mouth" stroke="#6A6A6A" stroke-width="6" fill="none" stroke-linecap="round">
+<path d="M182 214 Q191 230 200 214 Q209 230 218 214"/>
+</g>
+<g id="mouthOpen" style="display:none" fill="#6A6A6A">
+<ellipse cx="200" cy="222" rx="11" ry="9"/>
+</g>
+<g id="eyes">
+<g fill="#333333">
+<circle cx="154" cy="172" r="10"/>
+<circle cx="246" cy="172" r="10"/>
+</g>
+</g>
+<g id="eyesClosed" style="display:none" stroke="#333333" stroke-width="6" fill="none" stroke-linecap="round">
+<path d="M144 172 L164 172"/>
+<path d="M236 172 L256 172"/>
+</g>
+<g fill="#F8D1D8" opacity="0.9">
+<circle cx="128" cy="208" r="19"/>
+<circle cx="272" cy="208" r="19"/>
+</g>
+</g>
+</svg>
+</div>
+<div id="hint">点一下</div>
+<div id="bubble"></div>
+<script>
+var svg=document.querySelector('svg');
+var koala=document.getElementById('koala');
+var eyes=document.getElementById('eyes');
+var eyesClosed=document.getElementById('eyesClosed');
+var mouth=document.getElementById('mouth');
+var mouthOpen=document.getElementById('mouthOpen');
+var hint=document.getElementById('hint');
+var bubble=document.getElementById('bubble');
+var raf=null,startT=0,DUR=460,AX=1.13,AY=0.85;
+var ac=null;
+var FACES=['(๑•̀ㅂ•́)و','(๑˃̵ᴗ˂̵)','(๑>◡<๑)','(๑•́ ₃ •̀๑)','(๑･ω･๑)','(≧▽≦)','(๑>ᴗ<๑)'];
+var first=true,bubTimer=null;
+function getAC(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(ac&&ac.state==='suspended'){ac.resume();}return ac;}
+function squeak(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+var o=c.createOscillator();var g=c.createGain();
+o.type='triangle';
+o.frequency.setValueAtTime(880,t);
+o.frequency.exponentialRampToValueAtTime(1500,t+0.05);
+o.frequency.exponentialRampToValueAtTime(760,t+0.13);
+g.gain.setValueAtTime(0.0001,t);
+g.gain.exponentialRampToValueAtTime(0.26,t+0.012);
+g.gain.exponentialRampToValueAtTime(0.0001,t+0.15);
+o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.17);
+var o2=c.createOscillator();var g2=c.createGain();
+o2.type='sine';
+o2.frequency.setValueAtTime(1760,t+0.02);
+o2.frequency.exponentialRampToValueAtTime(1200,t+0.1);
+g2.gain.setValueAtTime(0.0001,t+0.02);
+g2.gain.exponentialRampToValueAtTime(0.1,t+0.035);
+g2.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+o2.connect(g2);g2.connect(c.destination);o2.start(t+0.02);o2.stop(t+0.14);
+}
+function coo(){
+var c=getAC();if(!c)return;
+var t=c.currentTime;
+var o=c.createOscillator();var g=c.createGain();
+o.type='sine';
+o.frequency.setValueAtTime(420,t);
+o.frequency.linearRampToValueAtTime(520,t+0.09);
+o.frequency.linearRampToValueAtTime(400,t+0.2);
+g.gain.setValueAtTime(0.0001,t);
+g.gain.exponentialRampToValueAtTime(0.18,t+0.03);
+g.gain.exponentialRampToValueAtTime(0.0001,t+0.24);
+o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.26);
+}
+function pop(){
+var d=document.createElement('div');d.className='float';
+var r=svg.getBoundingClientRect();
+d.textContent='❤️';
+var x=r.left+r.width*(0.28+Math.random()*0.44);
+var y=r.top+r.height*0.32;
+d.style.left=x+'px';d.style.top=y+'px';
+document.body.appendChild(d);
+var t0=0,dur=900;
+function step(ts){if(!t0)t0=ts;var k=(ts-t0)/dur;if(k>=1){d.remove();return;}
+d.style.top=(y-80*k)+'px';d.style.opacity=String(1-k*k);requestAnimationFrame(step);}
+requestAnimationFrame(step);
+}
+function say(){
+bubble.textContent=FACES[Math.floor(Math.random()*FACES.length)];
+bubble.classList.add('on');
+if(bubTimer)clearTimeout(bubTimer);
+bubTimer=setTimeout(function(){bubble.classList.remove('on');},1400);
+}
+function tick(ts){
+if(!startT)startT=ts;
+var k=(ts-startT)/DUR;
+if(k>=1){koala.style.transform='';eyes.style.display='';eyesClosed.style.display='none';mouth.style.display='';mouthOpen.style.display='none';raf=null;return;}
+var p=Math.sin(Math.PI*k);
+var sx=1+(AX-1)*p;var sy=1-(1-AY)*p;
+koala.style.transform='scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+requestAnimationFrame(tick);
+}
+function squish(){
+getAC();
+if(first){first=false;hint.style.opacity='0';}
+if(raf){cancelAnimationFrame(raf);}
+startT=0;
+eyes.style.display='none';eyesClosed.style.display='';
+mouth.style.display='none';mouthOpen.style.display='';
+squeak();coo();pop();say();
+raf=requestAnimationFrame(tick);
+}
+svg.addEventListener('pointerdown',function(e){e.preventDefault();squish();});
+setTimeout(function(){hint.style.opacity='0';},2600);
+</script>
+</body>
+</html>
